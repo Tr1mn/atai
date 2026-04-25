@@ -1,0 +1,36 @@
+# Secrets — never commit
+.env
+.env.local
+.env.*.local
+
+# Databases — never commit data files
+*.db
+*.sqlite
+*.sqlite3
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+.venv/
+venv/
+env/
+.pytest_cache/
+.mypy_cache/
+htmlcov/
+.coverage
+coverage.xml
+
+# Node / frontend build output
+node_modules/
+dist/
+.vite/
+
+# OS
+.DS_Store
+Thumbs.db
