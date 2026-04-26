@@ -7,6 +7,7 @@ Create Date: 2026-04-26 12:00:00.000000
 """
 from typing import Sequence, Union
 from alembic import op
+import sqlalchemy as sa
 
 revision: str = 'c9f2e1a4b3d7'
 down_revision: Union[str, None] = '8d3a2b7f4c1e'
@@ -15,11 +16,17 @@ depends_on: Union[str, Sequence[str], None] = None
 
 
 def upgrade() -> None:
-    with op.batch_alter_table('likes', schema=None) as batch_op:
-        batch_op.create_unique_constraint('uq_like_from_to', ['from_user_id', 'to_user_id'])
+    inspector = sa.inspect(op.get_bind())
+    like_constraints = {c["name"] for c in inspector.get_unique_constraints("likes")}
+    match_constraints = {c["name"] for c in inspector.get_unique_constraints("matches")}
 
-    with op.batch_alter_table('matches', schema=None) as batch_op:
-        batch_op.create_unique_constraint('uq_match_users', ['user1_id', 'user2_id'])
+    if "uq_like_from_to" not in like_constraints:
+        with op.batch_alter_table('likes', schema=None) as batch_op:
+            batch_op.create_unique_constraint('uq_like_from_to', ['from_user_id', 'to_user_id'])
+
+    if "uq_match_users" not in match_constraints:
+        with op.batch_alter_table('matches', schema=None) as batch_op:
+            batch_op.create_unique_constraint('uq_match_users', ['user1_id', 'user2_id'])
 
 
 def downgrade() -> None:

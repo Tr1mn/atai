@@ -13,13 +13,12 @@ _COOKIE_MAX_AGE = settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60
 
 
 def _set_auth_cookie(response: Response, token: str) -> None:
-    is_prod = settings.ENVIRONMENT == "production"
     response.set_cookie(
         key="access_token",
         value=token,
         httponly=True,
-        samesite="strict" if is_prod else "lax",
-        secure=is_prod,      # HTTPS required in prod; plain HTTP ok in dev
+        samesite=settings.COOKIE_SAMESITE,
+        secure=settings.COOKIE_SECURE,
         max_age=_COOKIE_MAX_AGE,
     )
 
@@ -71,5 +70,9 @@ def get_me_session(current_user=Depends(get_current_user)):
 
 @router.post("/logout")
 def logout(response: Response):
-    response.delete_cookie("access_token")
+    response.delete_cookie(
+        "access_token",
+        secure=settings.COOKIE_SECURE,
+        samesite=settings.COOKIE_SAMESITE,
+    )
     return {"message": "Logged out"}
